@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Forty Four — basket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #1FA7C7;
+    --teal-d: #167f99;
+    --teal-bg: #eaf6fb;
+    --green: #3DBE3D;
+    --green-d: #2a9a2a;
+    --ink: #1d1d1f;
+    --ink-2: #6e6e73;
+    --ink-3: #a1a1a6;
+    --line: #e5e5ea;
+    --bg: #f5f5f7;
+    --card: #fff;
+    --amber-bg: #fff8e1;
+    --amber-bd: #f1d97a;
+    --amber-ink: #7a5d00;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; font-size: 14px; }
+
+  /* Top utility + header */
+  .util { background: var(--teal-bg); font-size: 12px; padding: 6px 32px; color: var(--ink-2); display: flex; justify-content: space-between; }
+  .util a { color: var(--teal-d); text-decoration: none; }
+  header.site { background: #fff; border-bottom: 1px solid var(--line); padding: 14px 32px; display: flex; align-items: center; gap: 24px; }
+  .logo { font-weight: 800; font-size: 18px; letter-spacing: -0.01em; }
+  .logo span { color: #b51616; }
+  header.site .search { flex: 1; background: var(--bg); border-radius: 999px; padding: 10px 16px; font-size: 13px; color: var(--ink-3); }
+  header.site .iconbtn { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; }
+  header.site .iconbtn .ico { width: 28px; height: 28px; border-radius: 50%; background: var(--teal-bg); display: inline-flex; align-items: center; justify-content: center; color: var(--teal-d); font-size: 14px; }
+
+  /* Page head */
+  .crumb { font-size: 12px; color: var(--ink-2); padding: 16px 32px 0; }
+  .crumb b { color: var(--ink); }
+  .basket-head { padding: 16px 32px 24px; display: flex; justify-content: space-between; align-items: baseline; }
+  .basket-head h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
+  .basket-head .count { color: var(--ink-2); font-size: 14px; }
+  .basket-head a.back { font-size: 13px; color: var(--teal-d); text-decoration: none; }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 0 32px 64px; max-width: 1280px; margin: 0 auto; }
+
+  /* Logo banner */
+  .logo-banner { background: var(--amber-bg); border: 1px solid var(--amber-bd); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; color: var(--amber-ink); font-size: 13px; margin-bottom: 16px; }
+  .logo-banner b { color: var(--amber-ink); }
+  .logo-banner .upload-btn { margin-left: auto; background: var(--ink); color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
+  .logo-banner.done { background: #ecf9ec; border-color: #b6e0b6; color: #1e6e1e; }
+  .logo-banner.done b { color: #1e6e1e; }
+
+  /* Line rows */
+  .lines { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .line { display: grid; grid-template-columns: 80px 1fr auto; gap: 16px; padding: 16px; border-bottom: 1px solid var(--line); align-items: start; }
+  .line:last-child { border-bottom: 0; }
+  .line .thumb { width: 80px; height: 80px; background: linear-gradient(135deg, #f0f0f3, #e5e5ea); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--ink-3); }
+  .line .meta h3 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+  .line .meta .variant { font-size: 12px; color: var(--ink-2); margin-bottom: 8px; }
+  .line .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .line .controls label { font-size: 11px; color: var(--ink-2); display: flex; flex-direction: column; gap: 2px; }
+  .line select { background: var(--teal-bg); border: 1px solid #cfe7f1; border-radius: 6px; padding: 6px 8px; font-size: 12px; font-family: inherit; color: var(--ink); cursor: pointer; }
+  .line .price { text-align: right; min-width: 110px; }
+  .line .price .total { font-size: 16px; font-weight: 700; }
+  .line .price .unit { font-size: 11px; color: var(--ink-2); }
+  .line .price .remove { background: none; border: 0; color: var(--ink-3); font-size: 18px; cursor: pointer; margin-top: 6px; padding: 0; }
+  .line .price .remove:hover { color: #b51616; }
+  .line .tier-hint { grid-column: 2; margin-top: 8px; font-size: 11px; color: var(--green-d); display: flex; align-items: center; gap: 6px; }
+  .line .tier-hint.hidden { display: none; }
+  .line .tier-hint button { background: none; border: 0; color: var(--green-d); font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline; font-size: 11px; }
+
+  /* Logo chip per line */
+  .logo-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px 4px 4px; font-size: 12px; cursor: pointer; position: relative; }
+  .logo-chip:hover { border-color: var(--teal); }
+  .logo-chip.custom { background: #fff3e0; border-color: #f3c977; }
+  .logo-chip.empty { background: #fff8e1; border-color: var(--amber-bd); color: var(--amber-ink); }
+  .logo-chip .lc-thumb { width: 22px; height: 22px; border-radius: 4px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--ink-3); }
+  .logo-chip .lc-thumb.has { background: linear-gradient(135deg, #d4e7f5, #b3d4e8); color: var(--teal-d); font-weight: 700; font-size: 9px; }
+  .logo-chip .lc-name { font-weight: 500; }
+  .logo-chip .lc-arrow { color: var(--ink-3); font-size: 10px; }
+  .logo-menu { position: absolute; top: calc(100% + 4px); left: 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); padding: 6px; z-index: 50; min-width: 220px; display: none; }
+  .logo-menu.on { display: block; }
+  .logo-menu .lm-h { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); padding: 6px 8px 4px; }
+  .logo-menu .lm-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .logo-menu .lm-item:hover { background: var(--bg); }
+  .logo-menu .lm-item.on { background: var(--teal-bg); }
+  .logo-menu .lm-item .tick { color: var(--green); font-weight: 700; margin-left: auto; }
+  .logo-menu .lm-item .mini-th { width: 24px; height: 24px; border-radius: 4px; background: linear-gradient(135deg, #d4e7f5, #b3d4e8); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--teal-d); font-weight: 700; }
+  .logo-menu .lm-divider { height: 1px; background: var(--line); margin: 4px 0; }
+  .logo-menu .lm-upload { color: var(--teal-d); font-weight: 600; }
+  .logo-menu .lm-upload .mini-th { background: var(--teal-bg); color: var(--teal-d); }
+  .reset-link { background: none; border: 0; color: var(--ink-2); font-size: 11px; cursor: pointer; padding: 4px 8px; text-decoration: underline; }
+  .reset-link:hover { color: var(--ink); }
+
+  /* Email-capture strip */
+  .save-strip { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--ink-2); }
+  .save-strip input { flex: 1; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-family: inherit; font-size: 13px; }
+  .save-strip button { background: var(--ink); color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .save-strip.saved { background: #ecf9ec; border-color: #b6e0b6; color: #1e6e1e; justify-content: center; }
+
+  /* Side rail */
+  .rail { position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; gap: 16px; }
+  .summary { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .summary h2 { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+  .summary .srow { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; color: var(--ink-2); }
+  .summary .srow.total { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 12px; color: var(--ink); font-weight: 700; font-size: 18px; }
+  .summary .srow.total span:last-child { font-size: 20px; }
+  .btn { display: block; width: 100%; padding: 14px; border: 0; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 10px; letter-spacing: 0.02em; }
+  .btn.primary { background: var(--green); color: #fff; }
+  .btn.primary:hover { background: var(--green-d); }
+  .btn.secondary { background: #fff; color: var(--ink); border: 1.5px solid var(--ink); }
+  .btn.secondary:hover { background: var(--ink); color: #fff; }
+  .micro { font-size: 11px; color: var(--ink-2); text-align: center; margin-top: 10px; }
+  .trust { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; gap: 12px; align-items: center; }
+  .trust { gap: 14px; }
+  .trust .av { width: 88px; height: 88px; border-radius: 50%; background: url('callum.png') center/cover; flex: 0 0 88px; }
+  .trust .who { font-size: 12px; color: var(--ink-2); }
+  .trust .who b { display: block; color: var(--ink); font-size: 13px; }
+  .trust .phone { color: var(--teal-d); font-weight: 600; }
+
+  /* Modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-bg.on { display: flex; }
+  .modal { background: #fff; border-radius: 14px; max-width: 520px; width: 100%; overflow: hidden; max-height: 90vh; overflow-y: auto; }
+  .modal-h { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .modal-h h2 { margin: 0; font-size: 17px; font-weight: 700; }
+  .modal-h .x { background: none; border: 0; font-size: 22px; color: var(--ink-2); cursor: pointer; padding: 0; line-height: 1; }
+  .modal-b { padding: 20px 22px; }
+  .modal-b .summary-line { background: var(--bg); padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--ink-2); margin-bottom: 16px; }
+  .modal-b .summary-line b { color: var(--ink); }
+  .modal-b label { display: block; font-size: 12px; font-weight: 600; color: var(--ink); margin: 12px 0 4px; }
+  .modal-b label .opt { color: var(--ink-3); font-weight: 400; }
+  .modal-b input[type=text], .modal-b input[type=email], .modal-b textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 14px; }
+  .modal-b textarea { min-height: 60px; resize: vertical; }
+  .modal-b .logo-pick { background: var(--bg); border-radius: 8px; padding: 12px; margin-top: 12px; }
+  .modal-b .logo-pick .h { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .modal-b .logo-pick .d { font-size: 11px; color: var(--ink-2); margin-bottom: 8px; }
+  .modal-b .logo-pick label { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 13px; margin: 4px 0; cursor: pointer; }
+  .modal-b .save-me { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); margin: 16px 0 0; cursor: pointer; }
+  .modal-b .micro-foot { font-size: 11px; color: var(--ink-2); margin-top: 8px; text-align: center; }
+  .modal-b .success { text-align: center; padding: 24px 0; }
+  .modal-b .success .tick { width: 56px; height: 56px; border-radius: 50%; background: var(--green); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 12px; }
+  .modal-b .success h3 { margin: 0 0 6px; font-size: 18px; }
+  .modal-b .success p { color: var(--ink-2); margin: 0 0 16px; font-size: 13px; }
+
+  /* Place order page (modal-ish full takeover) */
+  .checkout { background: var(--bg); position: fixed; inset: 0; z-index: 90; overflow-y: auto; display: none; }
+  .checkout.on { display: block; }
+  .checkout .ch-head { background: #fff; border-bottom: 1px solid var(--line); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .checkout .ch-head h1 { margin: 0; font-size: 20px; font-weight: 800; }
+  .checkout .ch-head .back { background: none; border: 0; color: var(--teal-d); font-size: 13px; cursor: pointer; font-family: inherit; }
+  .checkout .ch-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 24px 32px 64px; max-width: 1280px; margin: 0 auto; }
+  .ch-section { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .ch-section h3 { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+  .ch-section h3 .n { background: var(--ink); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
+  .ch-section .ch-row { display: flex; gap: 12px; }
+  .ch-section .ch-row > * { flex: 1; }
+  .ch-section input[type=text], .ch-section input[type=date], .ch-section input[type=email], .ch-section select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 14px; }
+  .ch-section .radio { display: block; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 13px; }
+  .ch-section .radio input { margin-right: 8px; }
+  .ch-section .radio.on { border-color: var(--teal); background: var(--teal-bg); }
+  .ch-section .logo-preview { display: flex; gap: 12px; align-items: center; padding: 10px; background: var(--bg); border-radius: 8px; }
+  .ch-section .logo-preview .lg-thumb { width: 56px; height: 56px; background: #fff; border: 1px solid var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: 11px; }
+
+  /* Confirm screen */
+  .confirm { text-align: center; padding: 80px 32px; }
+  .confirm .tick { width: 80px; height: 80px; border-radius: 50%; background: var(--green); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 16px; }
+  .confirm h1 { font-size: 28px; margin: 0 0 8px; }
+  .confirm .order-num { color: var(--ink-2); margin-bottom: 24px; }
+  .confirm .next { max-width: 480px; margin: 0 auto 24px; text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .confirm .next h3 { margin: 0 0 10px; font-size: 14px; }
+  .confirm .next ol { margin: 0; padding-left: 20px; color: var(--ink-2); font-size: 13px; }
+  .confirm .next ol li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<!-- Header chrome -->
+<div class="util">
+  <span>📞 Need help? Call <a href="#">+1 914-554-2886</a> or <a href="#">inquiries@fortyfourmerchandise.com</a></span>
+  <span>Sign up for updates · fb · ig · li</span>
+</div>
+<header class="site">
+  <div class="logo">Forty Four <span>Merchandise</span></div>
+  <div class="search">🔍 What are you looking for?</div>
+  <div class="iconbtn"><span class="ico">📞</span>CALL US</div>
+  <div class="iconbtn"><span class="ico">👤</span>MY ACCOUNT</div>
+  <div class="iconbtn"><span class="ico">🛒</span>BASKET</div>
+</header>
+
+<div class="crumb">Home / <b>Your basket</b></div>
+
+<div class="basket-head">
+  <div>
+    <h1>Your basket <span class="count" id="head-count">· 10 items</span></h1>
+  </div>
+  <a class="back" href="#">← Keep shopping</a>
+</div>
+
+<div class="grid">
+
+  <!-- LEFT: lines + banners -->
+  <div>
+
+    <!-- Account logo panel — first-time vs returning -->
+    <div id="account-logo" class="logo-banner" style="margin-bottom:16px"></div>
+
+    <!-- Save basket strip (email capture) -->
+    <div class="save-strip" id="save-strip">
+      <span style="font-size:18px">💾</span>
+      <span>Save this basket — we'll email it so you can pick up later.</span>
+      <input type="email" id="save-email" placeholder="you@company.com">
+      <button onclick="saveBasket()">Save</button>
+    </div>
+
+    <!-- Line items -->
+    <div class="lines" id="lines"></div>
+  </div>
+
+  <!-- RIGHT: sticky rail -->
+  <div class="rail">
+    <div class="summary">
+      <h2>Order summary</h2>
+      <div class="srow"><span>Subtotal</span><span id="sub">$24,310.00</span></div>
+      <div class="srow"><span>Decoration</span><span id="dec">+$1,840.00</span></div>
+      <div class="srow"><span>Shipping</span><span style="color:var(--ink-3)">Calculated next</span></div>
+      <div class="srow"><span>Tax</span><span style="color:var(--ink-3)">Calculated next</span></div>
+      <div class="srow total"><span>Total</span><span id="total">$26,150.00</span></div>
+
+      <button class="btn secondary" onclick="openQuote()">Email me a quote (PDF)</button>
+      <button class="btn primary" onclick="openCheckout()">Place order →</button>
+      <p class="micro">Not ready? Get a quote — no commitment.<br>Logo set during checkout · saved for next time.</p>
+    </div>
+
+    <div class="trust">
+      <div class="av">C</div>
+      <div class="who">
+        <b>Callum · operations</b>
+        Questions? <span class="phone">+1 914-554-2886</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUOTE MODAL -->
+<div class="modal-bg" id="quote-modal" onclick="if(event.target===this)closeQuote()">
+  <div class="modal">
+    <div class="modal-h">
+      <h2>Email your quote</h2>
+      <button class="x" onclick="closeQuote()">×</button>
+    </div>
+    <div class="modal-b" id="quote-body">
+      <div class="summary-line"><b id="q-items">10 items</b> · total <b id="q-total">$26,150.00</b></div>
+
+      <label>Send to</label>
+      <input type="email" id="q-email" placeholder="you@company.com">
+
+      <label>CC <span class="opt">(optional — e.g. your boss)</span></label>
+      <input type="email" id="q-cc" placeholder="boss@company.com">
+
+      <div class="logo-pick">
+        <div class="h">Logo (optional)</div>
+        <div class="d">Speeds up the order when you're ready.</div>
+        <label><input type="radio" name="q-logo" value="upload"> Upload now</label>
+        <label><input type="radio" name="q-logo" value="onfile"> Use logo on file (none yet)</label>
+        <label><input type="radio" name="q-logo" value="skip" checked> Skip for now</label>
+      </div>
+
+      <label>Note <span class="opt">(optional)</span></label>
+      <textarea id="q-note" placeholder="Anything we should know..."></textarea>
+
+      <label class="save-me"><input type="checkbox" id="q-save"> Save my details for next time</label>
+
+      <button class="btn primary" onclick="sendQuote()" style="margin-top:18px">Send quote PDF →</button>
+      <p class="micro-foot">Quote valid 30 days. Final price confirmed on artwork review.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT (Place order) FULL OVERLAY -->
+<div class="checkout" id="checkout">
+  <div class="ch-head">
+    <h1>Place order</h1>
+    <button class="back" onclick="closeCheckout()">← Back to basket</button>
+  </div>
+  <div class="ch-grid">
+    <!-- left -->
+    <div>
+      <div class="ch-section" id="logo-section">
+        <h3><span class="n">1</span> Your logo</h3>
+
+        <!-- First-time state (no logo on file) -->
+        <div id="logo-first" style="background:var(--amber-bg);border:1.5px dashed var(--amber-bd);border-radius:10px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px">🎨</div>
+          <div style="font-weight:600;color:var(--amber-ink);margin-bottom:4px">Add your logo</div>
+          <div style="font-size:12px;color:var(--ink-2);margin-bottom:14px">Applied to all 10 lines. Saved for every future order — upload once.</div>
+          <button class="btn primary" style="max-width:220px;margin:0 auto" onclick="checkoutUploadLogo()">Upload logo file</button>
+          <div style="font-size:11px;color:var(--ink-2);margin-top:10px">PNG, JPG, SVG, AI, PDF · or <a href="#" style="color:var(--teal-d)">send it to us by email later</a></div>
+        </div>
+
+        <!-- Returning-buyer state (logo on file) -->
+        <div id="logo-returning" style="display:none">
+          <div class="logo-preview">
+            <div class="lg-thumb" id="lg-thumb" style="background:#fff;font-weight:600;color:var(--ink)">acme.png</div>
+            <div>
+              <select style="max-width:240px"><option>acme-logo.png</option><option>+ upload new</option></select>
+              <div style="font-size:11px;color:var(--ink-2);margin-top:4px">Applied to all 10 lines · <a href="#" style="color:var(--teal-d)">Use different per line</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ch-section">
+        <h3><span class="n">2</span> When do you need it?</h3>
+        <div class="ch-row">
+          <input type="date" value="2026-06-18">
+          <div style="font-size:12px;color:var(--ink-2);padding:10px 0">⚡ Standard lead time 14 days · rush options? <a href="#" style="color:var(--teal-d)">Call us</a></div>
+        </div>
+      </div>
+
+      <div class="ch-section">
+        <h3><span class="n">3</span> Ship to</h3>
+        <label class="radio on"><input type="radio" name="ship" checked> My default · Acme Co, 123 Main St, Houston TX 77002</label>
+        <label class="radio"><input type="radio" name="ship"> Different address</label>
+      </div>
+
+      <div class="ch-section">
+        <h3><span class="n">4</span> Bill to</h3>
+        <label class="radio on"><input type="checkbox" checked> Same as shipping</label>
+      </div>
+
+      <div class="ch-section">
+        <h3><span class="n">5</span> How you're paying</h3>
+        <label class="radio on"><input type="radio" name="pay" checked> Credit card</label>
+        <label class="radio"><input type="radio" name="pay"> Purchase order / Net 30 (subject to credit approval)</label>
+      </div>
+
+      <div class="ch-section">
+        <h3><span class="n">6</span> Contact for this order</h3>
+        <div class="ch-row">
+          <input type="text" placeholder="Name">
+          <input type="email" placeholder="Email">
+        </div>
+        <input type="text" placeholder="Phone" style="margin-top:8px">
+      </div>
+    </div>
+
+    <!-- right rail -->
+    <div class="rail">
+      <div class="summary">
+        <h2>Order summary</h2>
+        <div class="srow"><span>Subtotal</span><span id="c-sub">$24,310.00</span></div>
+        <div class="srow"><span>Decoration</span><span>+$1,840.00</span></div>
+        <div class="srow"><span>Shipping</span><span>$215.00</span></div>
+        <div class="srow"><span>Tax</span><span>$0.00</span></div>
+        <div class="srow total"><span>Total</span><span id="c-total">$26,365.00</span></div>
+        <button class="btn primary" onclick="placeOrder()">Place order →</button>
+        <p class="micro">By placing this order you agree to our <a href="#" style="color:var(--teal-d)">Terms</a>.</p>
+      </div>
+      <div class="trust">
+        <div class="av"></div>
+        <div class="who">
+          <b>Callum · operations</b>
+          Need help? <span class="phone">+1 914-554-2886</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Sample line data — 10 items
+  const TIERS = {
+    "burnside-quarterzip": [
+      {q:96, u:29.53}, {q:144, u:25.68}, {q:288, u:22.33}, {q:504, u:19.42}
+    ],
+    "polo-classic": [
+      {q:50, u:18.40}, {q:100, u:15.20}, {q:250, u:12.85}, {q:500, u:10.95}
+    ],
+    "tote-canvas": [
+      {q:100, u:4.20}, {q:250, u:3.55}, {q:500, u:2.95}, {q:1000, u:2.40}
+    ],
+    "mug-ceramic": [
+      {q:72, u:6.85}, {q:144, u:5.90}, {q:288, u:4.95}, {q:576, u:4.10}
+    ],
+    "notebook-a5": [
+      {q:100, u:7.20}, {q:250, u:6.15}, {q:500, u:5.30}, {q:1000, u:4.45}
+    ],
+    "pen-metal": [
+      {q:250, u:2.40}, {q:500, u:1.95}, {q:1000, u:1.55}, {q:2500, u:1.20}
+    ],
+    "cap-baseball": [
+      {q:50, u:14.20}, {q:100, u:12.10}, {q:250, u:10.40}, {q:500, u:8.95}
+    ],
+    "bottle-stainless": [
+      {q:48, u:18.50}, {q:96, u:15.95}, {q:240, u:13.80}, {q:480, u:11.95}
+    ],
+    "hoodie-zip": [
+      {q:24, u:42.50}, {q:48, u:36.80}, {q:96, u:31.20}, {q:240, u:27.40}
+    ],
+    "lanyard-printed": [
+      {q:250, u:2.10}, {q:500, u:1.65}, {q:1000, u:1.25}, {q:2500, u:0.95}
+    ]
+  };
+
+  const STARTING_LINES = [
+    {sku:"burnside-quarterzip", name:"Burnside® Dawn to Dusk 1/4 Zip Jacket", variant:"Heather Black · 2XL", deco:"Front print · 1 colour", tier:0, emoji:"🧥"},
+    {sku:"polo-classic", name:"Classic Pique Polo Shirt", variant:"Navy · L", deco:"Left chest embroidery", tier:1, emoji:"👕"},
+    {sku:"tote-canvas", name:"Heavy Canvas Tote Bag", variant:"Natural · 15oz", deco:"1-side screen print", tier:1, emoji:"👜"},
+    {sku:"mug-ceramic", name:"Ceramic Coffee Mug 11oz", variant:"White", deco:"Full-wrap print", tier:1, emoji:"☕"},
+    {sku:"notebook-a5", name:"Hardcover A5 Notebook", variant:"Black", deco:"Debossed logo", tier:0, emoji:"📔"},
+    {sku:"pen-metal", name:"Brushed Metal Pen", variant:"Silver", deco:"Laser engraving", tier:1, emoji:"🖊"},
+    {sku:"cap-baseball", name:"Structured Baseball Cap", variant:"Black", deco:"3D front embroidery", tier:0, emoji:"🧢"},
+    {sku:"bottle-stainless", name:"Stainless Steel Water Bottle 24oz", variant:"Matte Black", deco:"Laser etch", tier:1, emoji:"🍶"},
+    {sku:"hoodie-zip", name:"Full-Zip Fleece Hoodie", variant:"Charcoal · L", deco:"Back screen print", tier:1, emoji:"🧥"},
+    {sku:"lanyard-printed", name:"Printed Polyester Lanyard", variant:"Red · 5/8\"", deco:"Full-colour sublimation", tier:2, emoji:"🪪"}
+  ];
+
+  // Account-level logo library — files uploaded once, reusable across lines.
+  // First file = "default" (applies to all lines unless overridden per-line).
+  let LOGO_LIBRARY = []; // e.g. [{id:"acme", name:"acme.png", colors:["#1f6"]}]
+
+  // Each line starts with logo = "default" (use account default). Override = id from LOGO_LIBRARY.
+  let lines = STARTING_LINES.map(l => ({...l, logo: "default"}));
+
+  const $ = sel => document.querySelector(sel);
+  const fmt = n => "$" + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  function renderLines() {
+    const container = $("#lines");
+    container.innerHTML = "";
+    let sub = 0, dec = 0;
+    lines.forEach((line, idx) => {
+      const tiers = TIERS[line.sku];
+      const t = tiers[line.tier];
+      const lineTotal = t.q * t.u;
+      const decAdd = lineTotal * 0.076; // mock decoration adder ~7.6%
+      sub += lineTotal;
+      dec += decAdd;
+
+      const next = tiers[line.tier + 1];
+      let hint = "";
+      if (next) {
+        const perUnitDrop = t.u - next.u;
+        if (perUnitDrop > 0) {
+          const saveOnCurrent = perUnitDrop * t.q;
+          hint = `<div class="tier-hint">💡 Save ${fmt(saveOnCurrent)} by bumping up to ${next.q} units (${fmt(next.u)}/u) · <button onclick="bumpTier(${idx})">Change to ${next.q} units →</button></div>`;
+        }
+      }
+
+      const tierOpts = tiers.map((tt, i) =>
+        `<option value="${i}" ${i===line.tier?'selected':''}>${tt.q} units — ${fmt(tt.u)}/u</option>`
+      ).join("");
+
+      container.insertAdjacentHTML('beforeend', `
+        <div class="line">
+          <div class="thumb">${line.emoji}</div>
+          <div class="meta">
+            <h3>${line.name}</h3>
+            <div class="variant">${line.variant}</div>
+            <div class="controls">
+              <label>Decoration
+                <select onchange="updateDeco(${idx}, this.value)">
+                  <option>${line.deco}</option>
+                  <option>Change method...</option>
+                </select>
+              </label>
+              ${LOGO_LIBRARY.length ? `<label>Logo${renderLogoChip(idx, line)}</label>` : ''}
+              <label>Quantity
+                <select onchange="setTier(${idx}, this.value)">${tierOpts}</select>
+              </label>
+            </div>
+            ${hint}
+          </div>
+          <div class="price">
+            <div class="total">${fmt(lineTotal)}</div>
+            <div class="unit">${fmt(t.u)}/u × ${t.q}</div>
+            <button class="remove" onclick="removeLine(${idx})" title="Remove">×</button>
+          </div>
+        </div>
+      `);
+    });
+
+    const total = sub + dec;
+    $("#sub").textContent = fmt(sub);
+    $("#dec").textContent = "+" + fmt(dec);
+    $("#total").textContent = fmt(total);
+    $("#head-count").textContent = `· ${lines.length} item${lines.length===1?'':'s'}`;
+    $("#q-items").textContent = `${lines.length} items`;
+    $("#q-total").textContent = fmt(total);
+    $("#c-sub").textContent = fmt(sub);
+    $("#c-total").textContent = fmt(total + 215);
+  }
+
+  // ----- Logo per-line UX -----
+  function defaultLogo() { return LOGO_LIBRARY[0] || null; }
+  function logoById(id) { return LOGO_LIBRARY.find(l => l.id === id); }
+
+  function renderLogoChip(idx, line) {
+    const def = defaultLogo();
+    // Resolve what this line actually uses
+    let label, thumb, cls = "";
+    if (line.logo === "default") {
+      if (!def) { label = "Add at checkout"; thumb = '<div class="lc-thumb">?</div>'; cls = "empty"; }
+      else { label = def.name; thumb = `<div class="lc-thumb has">${def.initials}</div>`; }
+    } else {
+      const f = logoById(line.logo);
+      if (f) { label = f.name; thumb = `<div class="lc-thumb has">${f.initials}</div>`; cls = "custom"; }
+      else { label = "Add at checkout"; thumb = '<div class="lc-thumb">?</div>'; cls = "empty"; }
+    }
+
+    const libItems = LOGO_LIBRARY.map(f => {
+      const isOn = (line.logo === "default" && f.id === (def && def.id)) || (line.logo === f.id);
+      const isDefault = def && f.id === def.id;
+      return `<div class="lm-item ${isOn?'on':''}" onclick="pickLogo(${idx}, '${f.id}', event)">
+        <div class="mini-th">${f.initials}</div>
+        <div style="display:flex;flex-direction:column;line-height:1.2">
+          <span>${f.name}</span>
+          ${isDefault ? '<span style="font-size:10px;color:var(--ink-2)">Account default</span>' : ''}
+        </div>
+        ${isOn ? '<span class="tick">✓</span>' : ''}
+      </div>`;
+    }).join("");
+
+    const useDefault = (line.logo !== "default" && def)
+      ? `<button class="reset-link" onclick="pickLogo(${idx}, 'default', event)">Reset to default</button>`
+      : "";
+
+    return `
+      <div class="logo-chip ${cls}" onclick="toggleLogoMenu(${idx}, event)">
+        ${thumb}
+        <span class="lc-name">${label}</span>
+        <span class="lc-arrow">▾</span>
+        <div class="logo-menu" id="lm-${idx}" onclick="event.stopPropagation()">
+          ${LOGO_LIBRARY.length ? `<div class="lm-h">Your logo library</div>${libItems}<div class="lm-divider"></div>` : `<div class="lm-h">No logos uploaded yet</div>`}
+          <div class="lm-item lm-upload" onclick="uploadForLine(${idx}, event)">
+            <div class="mini-th">+</div>
+            <span>Upload new file…</span>
+          </div>
+          ${useDefault ? `<div class="lm-divider"></div><div style="text-align:center">${useDefault}</div>` : ""}
+        </div>
+      </div>`;
+  }
+
+  function toggleLogoMenu(idx, ev) {
+    ev.stopPropagation();
+    document.querySelectorAll('.logo-menu.on').forEach(m => { if (m.id !== `lm-${idx}`) m.classList.remove('on'); });
+    document.getElementById(`lm-${idx}`).classList.toggle('on');
+  }
+  document.addEventListener('click', () => document.querySelectorAll('.logo-menu.on').forEach(m => m.classList.remove('on')));
+
+  function pickLogo(idx, logoId, ev) {
+    ev.stopPropagation();
+    lines[idx].logo = logoId;
+    renderLines();
+  }
+
+  let UPLOAD_COUNTER = 0;
+  function uploadForLine(idx, ev) {
+    ev.stopPropagation();
+    UPLOAD_COUNTER++;
+    const names = ["acme-logo.png", "event-2026.svg", "team-summit.pdf", "anniversary.ai", "sub-brand.png"];
+    const initials = ["AC", "EV", "TS", "AN", "SB"];
+    const i = (LOGO_LIBRARY.length) % names.length;
+    const newFile = { id: `f${UPLOAD_COUNTER}`, name: names[i], initials: initials[i] };
+    LOGO_LIBRARY.push(newFile);
+    // If this was first upload, default is now set — all lines using "default" now resolve to this file
+    // If user explicitly uploaded FROM a line, also assign to that line
+    if (LOGO_LIBRARY.length > 1) {
+      lines[idx].logo = newFile.id;
+    }
+    renderLines();
+    syncLogoState();
+  }
+
+  function syncLogoState() {
+    // Account logo panel above lines
+    const panel = document.getElementById('account-logo');
+    if (!LOGO_LIBRARY.length) {
+      panel.className = "logo-banner";
+      panel.innerHTML = `
+        <span style="font-size:20px">🎨</span>
+        <span><b>Upload your logo</b> — we'll use it on all ${lines.length} items. One upload, applies everywhere.</span>
+        <button class="upload-btn" onclick="uploadAccountLogo()">Upload logo</button>`;
+    } else {
+      const def = LOGO_LIBRARY[0];
+      const customCount = lines.filter(l => l.logo !== "default" && l.logo).length;
+      panel.className = "logo-banner done";
+      panel.innerHTML = `
+        <span style="font-size:20px">✓</span>
+        <span><b>Logo on file:</b> ${def.name} · used on ${lines.length - customCount} of ${lines.length} items${customCount ? ` · ${customCount} with custom artwork` : ''}.
+        <span style="display:block;font-size:11px;color:var(--ink-2);margin-top:2px">Tap a line below to use a different logo on specific products.</span></span>
+        <button class="upload-btn" onclick="uploadAccountLogo()">+ Add another</button>`;
+    }
+    // Checkout sync
+    if (LOGO_LIBRARY.length) {
+      const lf = document.getElementById('logo-first'); if (lf) lf.style.display = 'none';
+      const lr = document.getElementById('logo-returning'); if (lr) lr.style.display = 'block';
+      const lt = document.getElementById('lg-thumb'); if (lt) lt.textContent = LOGO_LIBRARY[0].initials;
+    }
+  }
+
+  function uploadAccountLogo() {
+    UPLOAD_COUNTER++;
+    const names = ["acme-logo.png", "event-2026.svg", "team-summit.pdf", "anniversary.ai", "sub-brand.png"];
+    const initials = ["AC", "EV", "TS", "AN", "SB"];
+    const i = LOGO_LIBRARY.length % names.length;
+    LOGO_LIBRARY.push({ id: `f${UPLOAD_COUNTER}`, name: names[i], initials: initials[i] });
+    renderLines();
+    syncLogoState();
+  }
+
+  function setTier(idx, v) { lines[idx].tier = +v; renderLines(); }
+  function bumpTier(idx) { lines[idx].tier++; renderLines(); }
+  function updateDeco(idx, v) { lines[idx].deco = v; }
+  function removeLine(idx) {
+    if (!confirm("Remove this item?")) return;
+    lines.splice(idx, 1);
+    renderLines();
+  }
+
+  function checkoutUploadLogo() {
+    $("#logo-first").style.display = "none";
+    $("#logo-returning").style.display = "block";
+  }
+
+  function saveBasket() {
+    const e = $("#save-email").value;
+    if (!e || !e.includes('@')) { alert("Enter a valid email"); return; }
+    const s = $("#save-strip");
+    s.classList.add("saved");
+    s.innerHTML = `✓ Basket saved · we'll email it to <b style="margin-left:4px">${e}</b>`;
+  }
+
+  function openQuote() { $("#quote-modal").classList.add("on"); }
+  function closeQuote() { $("#quote-modal").classList.remove("on"); resetQuote(); }
+  function resetQuote() {
+    $("#quote-body").innerHTML = $("#quote-body").dataset.original || $("#quote-body").innerHTML;
+  }
+
+  function sendQuote() {
+    const e = $("#q-email").value;
+    if (!e || !e.includes('@')) { alert("Enter a valid email"); return; }
+    $("#quote-body").innerHTML = `
+      <div class="success">
+        <div class="tick">✓</div>
+        <h3>Quote sent to ${e}</h3>
+        <p>Check your inbox. PDF + a link to convert to an order when you're ready.</p>
+        <button class="btn primary" onclick="closeQuote(); openCheckout()">Place this order now →</button>
+        <button class="btn secondary" onclick="closeQuote()" style="margin-top:8px">Keep shopping</button>
+      </div>`;
+  }
+
+  function openCheckout() { $("#checkout").classList.add("on"); window.scrollTo(0,0); }
+  function closeCheckout() { $("#checkout").classList.remove("on"); }
+
+  function placeOrder() {
+    document.querySelector(".checkout").innerHTML = `
+      <div class="ch-head"><h1>Order confirmed</h1></div>
+      <div class="confirm">
+        <div class="tick">✓</div>
+        <h1>Order placed</h1>
+        <div class="order-num">Order #FF-10428 · receipt emailed</div>
+        <div class="next">
+          <h3>What happens next</h3>
+          <ol>
+            <li>Art team prepares your proof (1–2 business days)</li>
+            <li>You approve the proof by email</li>
+            <li>We produce + ship — delivery by Jun 18</li>
+          </ol>
+        </div>
+        <button class="btn primary" style="max-width:300px;margin:0 auto" onclick="location.reload()">Done</button>
+      </div>`;
+  }
+
+  // init
+  renderLines();
+  syncLogoState();
+  document.querySelectorAll('input[name=ship], input[name=pay]').forEach(r => {
+    r.addEventListener('change', () => {
+      r.closest('.ch-section').querySelectorAll('.radio').forEach(x => x.classList.remove('on'));
+      r.closest('.radio').classList.add('on');
+    });
+  });
+</script>
+
+</body>
+</html>
