@@ -1,0 +1,9 @@
+{
+  "name": "site-audit-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Evidence collectors for the /site-audit skill",
+  "dependencies": {
+    "playwright": "~1.56.1"
+  }
+}
